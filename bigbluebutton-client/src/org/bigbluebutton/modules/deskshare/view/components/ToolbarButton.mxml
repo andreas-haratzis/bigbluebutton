@@ -25,7 +25,11 @@
 	icon="{deskShareIcon}" 
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip')}"
 	click="startDeskShare()"
-	implements="org.bigbluebutton.common.IBbbToolbarComponent">
+	implements="org.bigbluebutton.common.IBbbToolbarComponent"
+	cornerRadius="0"
+	maxWidth="45"
+	maxHeight="45">
+	
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.Images;
@@ -37,7 +41,7 @@
 			
 			private var images:Images = new Images();
 			
-			[Bindable] public var deskShareIcon:Class = images.deskShareIcon;
+			[Bindable] public var deskShareIcon:Class = images.screenButton;
 
 			private function startDeskShare():void {
 				LogUtil.debug("desk share button clicked");

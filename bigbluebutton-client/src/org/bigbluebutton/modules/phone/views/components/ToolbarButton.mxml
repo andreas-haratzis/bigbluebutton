@@ -24,7 +24,10 @@
 	icon="{phoneIcon}" click="startPhone()"
 	xmlns:mate="http://mate.asfusion.com/"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}"
-	implements="org.bigbluebutton.common.IBbbToolbarComponent">
+	implements="org.bigbluebutton.common.IBbbToolbarComponent"
+	cornerRadius="0"
+	maxWidth="45"
+	maxHeight="45">
 	
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>

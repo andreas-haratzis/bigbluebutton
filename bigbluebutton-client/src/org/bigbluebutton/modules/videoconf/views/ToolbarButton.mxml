@@ -24,7 +24,10 @@
 		   click="openPublishWindow()" creationComplete="init()" 
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}"
 		   visible="{isPresenter}"
-		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
+		   implements="org.bigbluebutton.common.IBbbToolbarComponent"
+		   cornerRadius="0"
+		   maxWidth="45"
+		   maxHeight="45">
 	
 	<mx:Script>
 		<![CDATA[
@@ -38,7 +41,7 @@
 			[Bindable] public var isPresenter:Boolean;
 			
 			private var images:Images = new Images();
-			[Bindable] public var camIcon:Class = images.webcam;
+			[Bindable] public var camIcon:Class = images.webcamButton;
 			
 			private var dispatcher:Dispatcher;
 			
