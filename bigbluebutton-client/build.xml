@@ -31,7 +31,8 @@
 	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
 	<property name="SETTINGS" value="SettingsModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
-	
+	<property name="USER_AREA_DOCK" value="UserareadockModule" />
+
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
 	<target name="init-ant-contrib">
@@ -230,6 +231,10 @@
 	<target name="build-dyn" description="Compile Dynamic Info Module">
 		<build-module src="${SRC_DIR}" target="${DYN_INFO}" />
 	</target>
+
+        <target name="build-userareadock" description="Compile User Area Dock Module">
+                <build-module src="${SRC_DIR}" target="${USER_AREA_DOCK}" />
+        </target>
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
@@ -341,7 +346,7 @@
 			<echo message="Deskshare standalone built without optimization." />
 	</target>
 		
-	<target name="compile-bbb" depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-whiteboard-dyn, copy-resource-files"
+	<target name="compile-bbb" depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-whiteboard-dyn, copy-resource-files, build-userareadock"
 			description="Compiling the BBB without copying config.xml">	
 	</target>
 

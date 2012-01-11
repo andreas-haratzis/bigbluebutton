@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the 
+terms of the GNU Lesser General Public License as published by the Free Software 
+Foundation; either version 2.1 of the License, or (at your option) any later 
+version. 
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along 
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
+-->
+
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+		   xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   creationComplete="init()" 
+		   implements="org.bigbluebutton.common.IBbbModuleWindow"
+		   xmlns:mate="http://mate.asfusion.com/"
+		   layout="absolute"
+		   horizontalAlign="center"
+		   verticalAlign="middle"
+		   resize="onChildAdd()"
+		   draggable="false"
+		   showControls="false"
+		   resizable="true"
+		   styleNameFocus="videoDockFocus"
+		   styleNameNoFocus="videoDockNoFocus"
+		   title="User Area"
+		   titleStyleName="dockTitle">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Button;
+			import mx.events.ChildExistenceChangedEvent;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.WindowSideTab;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.DragWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.modules.userareadock.events.*;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videodock.views.DockOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private var childrenDimension:Dictionary = new Dictionary();
+			private var borderColor:String;
+			private var minChildAspectRatio:Number;
+			// the mutable array is used to change the order of the dock children
+			private var mutableChildrenArray:Array = new Array();
+			
+			//enable snap to side with tab button
+			private var snapped:Boolean = true;
+			private var snapManager:WindowSideTab;
+
+			private var options:DockOptions = new DockOptions();
+			
+			private function init():void {				
+				this.showCloseButton = false;		
+				
+				LogUtil.debug("Loading UserAreaDock");
+				
+				this.minWidth = options.width;
+				this.minHeight = options.height;
+				this.maxWidth = options.width;
+				this.maxHeight = options.height;
+				
+				this.width = this.minWidth;
+				this.height = this.minHeight;
+				
+				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
+				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
+				
+				if (options.maximize) this.maximize();
+				
+				//add snap button
+				if(snapped)
+				{
+					//create side tab manager
+					snapManager = new WindowSideTab();
+					//load image
+					var images:Images = new Images();
+					snapManager.buttonPositionAbsolute = 276/2;	//this button will be in the middle of the
+					snapManager.buttonPositionNormalized = 1/2;     //screen, under another button
+					snapManager.snapToRight = true;
+					snapManager.init(this, images.userAreaButton);
+				}
+				
+				//send the event out that the window is ready to accept new children
+				dispatchEvent(new UserAreaDockReadyEvent());	
+			}
+			
+			/**
+			 *	The windows docked are organized in a MxN grid equally divided.
+			 *	Then, the aspect ratio of the cells is the equal of the window
+			 *	with lower aspect ratio. For example, if there are two windows, 
+			 *	one 4x3 and one 16x9, the aspect ratio of the grid cells will be
+			 *	4x3, to better fit all the windows. The aspect ratio of the grid
+			 *	cells is updated every time a window is added or removed. 
+			 */
+			private function updateMinAspectRatio(children:Array):void {
+				minChildAspectRatio = 0;
+				for each(var window:MDIWindow in children) {
+				    const windowAspectRatio:Number = (window.width) / (window.height);
+				    if (minChildAspectRatio == 0 || windowAspectRatio < minChildAspectRatio)
+				        minChildAspectRatio = windowAspectRatio;				        
+				}
+				LogUtil.debug("Using aspect ratio grid = " + minChildAspectRatio);
+			}
+			
+			private function onChildAdd(e:ChildExistenceChangedEvent = null):void {
+				if (e != null) {
+					mutableChildrenArray.push(getChildren().pop());
+					updateMinAspectRatio(mutableChildrenArray);
+				}
+				
+				updateChildrenDimensions(mutableChildrenArray);
+				
+			}
+
+			private function onChildRemove(e:ChildExistenceChangedEvent = null):void {
+				var index:int = mutableChildrenArray.indexOf(e.relatedObject);
+				if (index != -1)
+					mutableChildrenArray.splice(index, 1);
+				
+				updateMinAspectRatio(mutableChildrenArray);
+				updateChildrenDimensions(mutableChildrenArray);
+			}
+			
+			public function getPrefferedPosition():String {
+				//return MainCanvas.BOTTOM_RIGHT;
+				return options.position;
+			}
+			
+			private function onDragWindow(e:DragWindowEvent):void{
+				switch (e.mode) {
+					case DragWindowEvent.DRAG:
+						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true)) {
+							setStyle("borderColor","0xFF0000");
+							e.window.width = e.window.minWidth;
+							e.window.height = e.window.minHeight;
+						} else {
+							setStyle("borderColor",borderColor);
+							restoreWindowDimensions(e.window);
+						}
+						break;
+					case DragWindowEvent.DRAG_START:
+						borderColor = getStyle("borderColor");
+						removeWindowChild(e.window);
+						saveWindowDimensions(e.window);
+						break;
+					case DragWindowEvent.DRAG_END:
+						setStyle("borderColor",borderColor);
+						restoreWindowDimensions(e.window);
+						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true))
+							addWindowChild(e.window);
+						break;
+				}
+			}
+			
+			private function saveWindowDimensions(window:MDIWindow):void {
+				var dimensions:Object = {width:window.width, height:window.height};
+				childrenDimension[window] = dimensions;
+			}
+			
+			private function restoreWindowDimensions(window:MDIWindow):void {
+				window.width = childrenDimension[window].width;
+				window.height = childrenDimension[window].height;
+			}
+			
+			private function repositionWindow(window:MDIWindow):void {
+				// \TODO reposition the window correctly between the windows
+				// one idea is to use a "shadow" window
+				// setChildIndex(window, ?);
+			}
+			
+			private function isUserAreaWindow(window:Object):Boolean {
+				LogUtil.debug(getQualifiedSuperclassName(window));
+				return (getQualifiedSuperclassName(window) == "org.bigbluebutton.modules.listeners.views::ListenersWindow"
+				|| getQualifiedSuperclassName(window) == "org.bigbluebutton.modules.viewers.views::ViewersWindow"
+				|| getQualifiedSuperclassName(window) == "org.bigbluebutton.modules.videoconf.views::PublishWindow")
+				//return (getQualifiedSuperclassName(window) == "org.bigbluebutton.modules.videoconf.business::VideoWindowItf")
+			}
+			
+			private function onCloseWindow(e:CloseWindowEvent):void {
+				// it should not just undock the window, it should close the window forever
+				if (isUserAreaWindow(e.window as DisplayObject) && this.contains(e.window as DisplayObject))
+					this.removeChild(e.window as DisplayObject);
+			}
+			
+			private function onOpenWindow(e:OpenUserAreaWindowEvent):void {
+				if (options.autoDock)
+					addWindowChild(e.window as MDIWindow);
+			}
+			
+			private function addWindowChild(window:MDIWindow):void {
+				if (this.contains(window))
+					return;
+				
+				/**
+				 * Check if the window is visible. Right now, a publisher window can be made invisible by setting
+				 * a param in config.xml. If the window is invisible, don't add it. We'll have to do this properly
+				 * when we refactor to remove the window UIs. We should just be adding Videos here instead of windows.
+				 * But for now, this is good enough.
+				 */
+				if (! window.visible) return;
+				
+				saveWindowDimensions(window);
+				
+				//window.minimizeBtn.visible = false;
+				//window.maximizeRestoreBtn.visible = false;
+				window.resizable = false;
+				window.showControls = false;
+
+				var e:CloseWindowEvent = new CloseWindowEvent();
+				e.window = window as IBbbModuleWindow;
+				dispatchEvent(e);
+				
+				
+				this.addChild(window);
+			}
+			
+			private function removeWindowChild(window:MDIWindow):void {
+				if (!this.contains(window))
+					return;
+				
+				//window.minimizeBtn.visible = true;
+				//window.maximizeRestoreBtn.visible = true;
+				window.resizable = true;
+				window.showControls = true;
+
+				this.removeChild(window);
+				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				e.window = window as IBbbModuleWindow;
+				dispatchEvent(e);
+				
+				restoreWindowDimensions(window);
+			}
+			
+			override public function close(event:MouseEvent = null):void {
+				removeAllChildren();
+				super.close(event);
+			}
+			
+			private function updateChildrenDimensions(children:Array):void {
+				if (children.length == 0) return;
+				
+				const horizontalGap:int = getStyle("horizontalGap");
+				const verticalGap:int = getStyle("verticalGap");
+				
+				var availableWidth:int = this.width - this.borderMetrics.left - this.borderMetrics.right;
+				var availableHeight:int = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
+				
+				var borderTop:int = 0;
+				var borderLeft:int = 0;
+				
+				var childWidth:int = 0;
+				var childHeight:int = 0;
+				var nRows:Number = 0;
+				var nColumns:Number = 0;
+				
+				// we would like to maximize the window size
+				for (var rows:Number = 1; rows <= children.length ; ++rows) {
+					var columns:Number = Math.ceil((children.length)/ rows);
+					var maxWidth:int = Math.floor((availableWidth - horizontalGap * (columns - 1)) / columns);
+					var maxHeight:int = Math.floor((availableHeight - verticalGap * (rows - 1)) / rows);
+					
+					// the possible dimensions shouldn't be less or equal 0 (it could happen with many videos)
+					if (maxWidth <= 0 || maxHeight <=0)
+						continue;
+					
+					var width:int = maxWidth;
+					var height:int = maxHeight;
+					
+					if (maxWidth / maxHeight > minChildAspectRatio)
+						width = Math.floor(maxHeight * minChildAspectRatio);
+					else
+						height = Math.floor(maxWidth / minChildAspectRatio);
+					
+					if (width > childWidth) {
+						childWidth = width;
+						childHeight = height;
+						nRows = rows;
+						nColumns = columns;
+					}
+				}                        
+				
+				//childWidth += VideoWindowItf.PADDING_HORIZONTAL;
+				//childHeight += VideoWindowItf.PADDING_VERTICAL;
+
+				const horizontalBorder:int = availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap;
+				const verticalBorder:int = availableHeight - nRows * childHeight - (nRows - 1) * verticalGap;
+				// this couple of lines will center the priority window on the available space for it
+				borderTop += verticalBorder / 2;
+				borderLeft += horizontalBorder / 2;
+								
+				for (var childIndex:int = 0; childIndex < children.length; ++childIndex) {
+					var window:MDIWindow = children[childIndex];
+					const wWidth:int = childWidth;
+					const wHeight:int = childHeight;
+					
+					window.width = wWidth;
+					window.height = wHeight;
+					//window.updateHeight();
+					
+					/*if (window.height > wHeight) {
+						window.height = wHeight;
+						//window.updateWidth();
+					}*/
+					
+					// the extra padding is used to center the windows with higher aspect ratio
+					const horizontalExtraPadding:int = (wWidth - window.width) / 2;
+					const verticalExtraPadding:int = (wHeight - window.height) / 2;
+					
+					var row:int = (childIndex - 0) / nColumns;
+					var column:int = (childIndex - 0) % nColumns;
+					
+					window.y = row * (wHeight + verticalGap) + borderTop + verticalExtraPadding;;
+					window.x = column * (wWidth + horizontalGap) + borderLeft + horizontalExtraPadding;
+				} 
+			}
+			
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+			}			
+			
+		]]>
+	</mx:Script>
+	
+	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragWindow" />
+	<mate:Listener type="{OpenUserAreaWindowEvent.OPEN_USER_AREA_WINDOW_EVENT}" method="onOpenWindow" />
+	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />
+</MDIWindow>
