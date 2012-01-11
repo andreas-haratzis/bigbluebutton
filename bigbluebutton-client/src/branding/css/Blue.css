@@ -1,9 +1,9 @@
 Application 
 {  
    backgroundColors: #000000,#3f3f3f;
-   backgroundImage: Embed(source="assets/img/bk3.jpg");
+   backgroundImage: Embed(source="assets/img/background.png");
    backgroundSize: "100%";
-   backgroundGradientColors: #B4BFCF, #78829C;
+   backgroundGradientColors: #0094C7, #0094C7;
    themeColor: #0094C7;
    backgroundGradientAlphas: 0.62, 0.26;
 }
