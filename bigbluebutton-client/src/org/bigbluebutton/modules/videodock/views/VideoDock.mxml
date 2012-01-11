@@ -24,23 +24,36 @@ $Id: $
 		   xmlns:mx="http://www.adobe.com/2006/mxml" 
 		   creationComplete="init()" 
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
-		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   layout="absolute"
 		   horizontalAlign="center"
 		   verticalAlign="middle"
-		   resize="onChildAdd()">
+		   resize="onChildAdd()"
+		   draggable="false"
+		   showControls="false"
+		   resizable="true"
+		   styleNameFocus="videoDockFocus"
+		   styleNameNoFocus="videoDockNoFocus"
+		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
+		   titleStyleName="dockTitle">
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.ChildExistenceChangedEvent;			
+			import mx.controls.Button;
+			import mx.events.ChildExistenceChangedEvent;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.WindowSideTab;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.main.views.SideTabButton;
 			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
 			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -57,6 +70,10 @@ $Id: $
 			// bigger the weight, bigger will be the window and less space the other windows will have
 			private var priorityWindowWeight:Number = 2/3;
 			
+			//enable snap to side with tab button
+			private var snapped:Boolean = true;
+			private var snapManager:WindowSideTab;
+
 			private var options:DockOptions = new DockOptions();
 			
 			private function init():void {				
@@ -64,8 +81,8 @@ $Id: $
 				
 				this.minWidth = options.width;
 				this.minHeight = options.height;
-				this.maxWidth = this.parent.width;
-				this.maxHeight = this.parent.height;
+				this.maxWidth = options.width;
+				this.maxHeight = options.height;
 				
 				this.width = this.minWidth;
 				this.height = this.minHeight;
@@ -74,6 +91,18 @@ $Id: $
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
 				
 				if (options.maximize) this.maximize();
+				
+				//add snap button
+				if(snapped)
+				{
+					//create side tab manager
+					snapManager = new WindowSideTab();
+					//load image
+					var images:Images = new Images();
+					
+					snapManager.init(this, images.videoChatButton);
+				}
+				
 			}
 			
 			/**
@@ -104,8 +133,9 @@ $Id: $
 					prioritizeAnyWindow();
 				
 				updateChildrenDimensions(mutableChildrenArray);
+				
 			}
-			
+
 			private function onChildRemove(e:ChildExistenceChangedEvent = null):void {
 				var index:int = mutableChildrenArray.indexOf(e.relatedObject);
 				if (index != -1)
@@ -124,6 +154,9 @@ $Id: $
 			}
 			
 			private function onDragVideoWindow(e:DragWindowEvent):void{
+				if(!isVideoWindow(e.window))
+					return;
+				
 				switch (e.mode) {
 					case DragWindowEvent.DRAG:
 						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true)) {
@@ -392,12 +425,11 @@ $Id: $
 			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
 			}			
-						
+			
 		]]>
 	</mx:Script>
-	
+
 	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
 	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />

@@ -25,8 +25,22 @@
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	resize="onResize()"
-	layout="absolute">
+	resize="resizeAndUpdateUserName()"
+	layout="absolute"
+ 	headerHeight="0"
+    styleName="videoWindow"
+ 	borderStyle="none"
+ 	backgroundColor="0x000000"
+	backgroundAlpha="1.0"
+ 	backgroundImage="@Embed(source='../../../../../branding/css/assets/img/videoBackground.png')"
+ 	borderThickness="0"
+	borderThicknessBottom="0"
+	borderThicknessTop="0"
+	borderThicknessLeft="0"
+	borderThicknessRight="0"
+ 	backgroundAttachment="fixed"
+ 	backgroundSize="auto"
+ 	showControls="false">
 	
 	<mx:Script>
 		<![CDATA[
@@ -44,6 +58,9 @@
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
 
+			[Bindable]
+			public var username:String;
+			
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
@@ -83,8 +100,9 @@
 				
 				if (videoOptions.viewerWindowMaxed)
 					this.maximize();
-				
-				this.showCloseButton = videoOptions.showCloseButton;
+
+				//make sure name is on top
+				this.setChildIndex(userNameCanvas,getChildren().length - 1);
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
@@ -163,9 +181,19 @@
 			private function closeWindow(e:CloseAllWindowsEvent):void{
 				this.close();
 			}
-												
+					
+			protected function resizeAndUpdateUserName():void {
+				onResize();
+				
+				userNameCanvas.x = _video.x;
+				userNameCanvas.width = _video.width;
+			}
 		]]>
 	</mx:Script>
+	
+	<mx:Canvas y="{(height - VideoWindowItf.PADDING_VERTICAL) - 25}" height="25" backgroundColor="0x000000" backgroundAlpha="0.5" id="userNameCanvas">
+		<mx:Label textAlign="left" text="{this.username}" styleName="videoWindowName" width="100%"/>
+	</mx:Canvas>
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </VideoWindowItf>

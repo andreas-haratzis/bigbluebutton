@@ -70,7 +70,7 @@
 				else {
 					window.startVideo(module.connection, stream);
 				}
-				window.title = name;
+				window.username = name;
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = window;
 				globalDispatcher.dispatchEvent(windowEvent);
