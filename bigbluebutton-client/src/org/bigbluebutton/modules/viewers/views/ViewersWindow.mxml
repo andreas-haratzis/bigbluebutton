@@ -33,32 +33,34 @@
 	
     <mx:Script>
         <![CDATA[
+        	import com.asfusion.mate.events.Dispatcher;
+        	
+        	import flexlib.mdi.events.MDIWindowEvent;
+        	
+        	import mx.binding.utils.BindingUtils;
+        	import mx.collections.ArrayCollection;
+        	import mx.controls.Alert;
+        	import mx.controls.listClasses.IListItemRenderer;
+        	import mx.events.DataGridEvent;
+        	import mx.events.ListEvent;
+        	
+        	import org.bigbluebutton.common.Images;
+        	import org.bigbluebutton.common.Role;
+        	import org.bigbluebutton.common.events.*;
+        	import org.bigbluebutton.common.events.LocaleChangeEvent;
+        	import org.bigbluebutton.core.managers.UserManager;
+        	import org.bigbluebutton.main.events.ParticipantJoinEvent;
+        	import org.bigbluebutton.main.model.users.BBBUser;
+        	import org.bigbluebutton.main.model.users.Conference;
+        	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+        	import org.bigbluebutton.main.model.users.events.KickUserEvent;
+        	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+        	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+        	import org.bigbluebutton.main.views.MainCanvas;
+        	import org.bigbluebutton.modules.userareadock.events.*;
+        	import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
         	import org.bigbluebutton.modules.viewers.model.ViewerOptions;
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.listClasses.IListItemRenderer;
-			import mx.events.DataGridEvent;
-			import mx.events.ListEvent;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.main.events.ParticipantJoinEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
-			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+        	import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]);
 			
@@ -83,6 +85,11 @@
 				dispatcher = new Dispatcher();
 				
 				this.visible = viewerOptions.windowVisible;
+				
+				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
+				addEventListener(MDIWindowEvent.DRAG, onDrag);
+				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);	
+				
 			}
 			
 			private function updateNumberOfViewers(numViewers:int):void {
@@ -161,10 +168,47 @@
 				rollEvent.userid = user.userid;
 				dispatcher.dispatchEvent(rollEvent);
 			}
-
+			
+			public function onDrag(event:MDIWindowEvent = null):void {
+				var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG);
+				e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
+				e.window = this;
+				dispatchEvent(e);
+			}
+			
+			public function onDragStart(event:MDIWindowEvent = null):void {
+				var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_START);
+				e.window = this;
+				dispatchEvent(e);
+			}
+			
+			public function onDragEnd(event:MDIWindowEvent = null):void {
+				var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_END);
+				e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
+				e.window = this;
+				dispatchEvent(e);
+			}
+			
+			override public function close(event:MouseEvent = null):void{
+				var e:CloseWindowEvent = new CloseWindowEvent();
+				e.window = this;
+				dispatchEvent(e);
+				
+				super.close(event);
+			}
+			
+			private function onUserAreaReady(e:UserAreaDockReadyEvent):void
+			{
+				var openUserAreaEvent:OpenUserAreaWindowEvent = new OpenUserAreaWindowEvent();
+				openUserAreaEvent.window = this;
+				dispatchEvent(openUserAreaEvent);
+			}
+			
         ]]>
     </mx:Script>
 
+	<mate:Listener type="{UserAreaDockReadyEvent.USER_AREA_DOCK_READY_EVENT}" method="onUserAreaReady" />
+	
     <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false"
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%"
 		itemRollOver="onItemRollOver(event)"

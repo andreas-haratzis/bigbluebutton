@@ -28,7 +28,8 @@ package org.bigbluebutton.modules.viewers.managers
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
 	import org.bigbluebutton.modules.viewers.model.ViewerOptions;
 	import org.bigbluebutton.modules.viewers.views.ViewersWindow;
-
+	import org.bigbluebutton.modules.userareadock.events.OpenUserAreaWindowEvent;
+	
 	public class ViewersManager
 	{
 		private var viewersWindow:ViewersWindow;
@@ -59,6 +60,7 @@ package org.bigbluebutton.modules.viewers.managers
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = viewersWindow;
 				dispatcher.dispatchEvent(windowEvent);
+
 			}
 		}
 		
