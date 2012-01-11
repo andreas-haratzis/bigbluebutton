@@ -26,7 +26,8 @@ package org.bigbluebutton.modules.listeners.managers
 	import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
 	import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 	import org.bigbluebutton.modules.listeners.views.ListenersWindow;
-
+	import org.bigbluebutton.modules.userareadock.events.OpenUserAreaWindowEvent;
+	
 	public class ListenersManager
 	{		
 		private var dispatcher:Dispatcher;
@@ -48,6 +49,7 @@ package org.bigbluebutton.modules.listeners.managers
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				e.window = listenersWindow;
 				dispatcher.dispatchEvent(e);
+	
 			}
 		}
 		

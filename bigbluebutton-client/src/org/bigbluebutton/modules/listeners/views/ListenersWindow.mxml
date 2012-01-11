@@ -56,6 +56,10 @@
 			import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			import com.asfusion.mate.events.Dispatcher;	
+			import org.bigbluebutton.modules.userareadock.events.*;
+			import org.bigbluebutton.common.events.*;
+			
 			private var images:Images= new Images();			
 			private var _xPosition:int;
 			private var _yPosition:int;
@@ -74,7 +78,12 @@
 				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");		
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceLocked");
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceJoined");
-				this.visible = listenerOptions.windowVisible;		
+				this.visible = listenerOptions.windowVisible;	
+				
+				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
+				addEventListener(MDIWindowEvent.DRAG, onDrag);
+				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
+				
 			}
 			
 			private function updateShowPushToTalkBtn(show:Boolean):void {
@@ -88,6 +97,26 @@
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [":", numListeners]) ;
 				else 
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["", ""]) ;
+			}
+			
+			public function onDrag(event:MDIWindowEvent = null):void {
+				var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG);
+				e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
+				e.window = this;
+				dispatchEvent(e);
+			}
+			
+			public function onDragStart(event:MDIWindowEvent = null):void {
+				var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_START);
+				e.window = this;
+				dispatchEvent(e);
+			}
+			
+			public function onDragEnd(event:MDIWindowEvent = null):void {
+				var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_END);
+				e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
+				e.window = this;
+				dispatchEvent(e);
 			}
 			
 			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
@@ -192,8 +221,18 @@
 				resourcesChanged();
 			}
 			
+			private function onUserAreaReady(e:UserAreaDockReadyEvent):void
+			{
+				var openUserAreaEvent:OpenUserAreaWindowEvent = new OpenUserAreaWindowEvent();
+				openUserAreaEvent.window = this;
+				dispatchEvent(openUserAreaEvent);
+			}
+			
 		]]>
 	</mx:Script>
+	
+	<mate:Listener type="{UserAreaDockReadyEvent.USER_AREA_DOCK_READY_EVENT}" method="onUserAreaReady" />
+	
     	<mx:List id="listenersList" height="100%" width="100%"
  			itemRenderer="org.bigbluebutton.modules.listeners.views.ListenerItem" 
             dragEnabled="false" dataProvider="{listeners}"
