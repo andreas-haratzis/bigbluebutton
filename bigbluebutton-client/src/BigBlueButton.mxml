@@ -27,7 +27,9 @@
 	xmlns:m="library://melomel/2010"
 	pageTitle="BigBlueButton"
 	layout="absolute" creationComplete="init()"
-	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
+	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
+ 	borderSkin="branding.css.ApplicationBackground">
+	<mx:Style source="branding/css/theme.css"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -40,6 +42,7 @@
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainApplicationShell;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import branding.css.ApplicationBackground;
 			
 		private var langResources:ResourceUtil = ResourceUtil.getInstance();
 		
