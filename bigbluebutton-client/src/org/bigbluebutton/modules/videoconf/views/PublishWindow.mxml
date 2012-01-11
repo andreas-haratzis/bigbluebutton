@@ -51,6 +51,7 @@
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.userareadock.events.OpenUserAreaWindowEvent;
 			
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -263,9 +264,9 @@
 				createButtons();
 				
 				// this event will dock the window, if it's enabled
-				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
-				openVideoEvent.window = this;
-				dispatchEvent(openVideoEvent);					
+				var openUserAreaWindowEvent:OpenUserAreaWindowEvent = new OpenUserAreaWindowEvent();
+				openUserAreaWindowEvent.window = this;
+				dispatchEvent(openUserAreaWindowEvent);				
 			}
 			
 			override public function close(event:MouseEvent=null):void{
