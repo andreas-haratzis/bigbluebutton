@@ -44,12 +44,13 @@ package org.bigbluebutton.modules.videoconf.business
 		// images must be static because it needs to be created *before* the PublishWindow creation
 		static protected var images:Images = new Images();
 		
-		static public var PADDING_HORIZONTAL:Number = 6;
-		static public var PADDING_VERTICAL:Number = 29;
+		static public var PADDING_HORIZONTAL:Number = 19;
+		static public var PADDING_VERTICAL:Number = 22;
 		protected var _minWidth:int = 160 + PADDING_HORIZONTAL;
 		protected var _minHeight:int = 120 + PADDING_VERTICAL;
 		protected var aspectRatio:Number = 1;
 		protected var keepAspect:Boolean = false;
+		protected var keepCentered:Boolean = true;
 		protected var originalWidth:Number;
 		protected var originalHeight:Number;
 		
@@ -145,6 +146,12 @@ package org.bigbluebutton.modules.videoconf.business
 				_video.y = 0;
 				this.width = tmpWidth + PADDING_HORIZONTAL;
 				this.height = tmpHeight + PADDING_VERTICAL;
+			}
+			
+			if(keepCentered)
+			{
+				_video.x = (this.width - _video.width) / 2;
+				_video.y = (this.height - _video.height) / 2;
 			}
 			
 			// reposition the window to fit inside the parent window
