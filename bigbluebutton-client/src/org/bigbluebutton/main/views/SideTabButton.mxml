@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
+		   maxWidth="{finalWidth}" maxHeight="{finalHeight}"
+		   width="{finalWidth}" height="{finalHeight}"
+		   icon="{image}"
+		   creationComplete="init()"
+		   skin="{null}">
+	<mx:Script>
+		<![CDATA[
+			
+			import flexlib.mdi.containers.MDIWindow;
+			
+			import org.bigbluebutton.common.LogUtil;
+			
+			[Bindable] 
+			public var image:Class = null;
+
+			[Bindable]
+			private var buttonIcon:Class = null;
+			private var parentWindow:MDIWindow = null;
+				
+			[Bindable]
+			public var finalWidth:Number = 53;
+			[Bindable]
+			public var finalHeight:Number = 276;
+			
+			[Bindable]
+			public var finalText:String = "Undefined";
+			
+			public function init():void
+			{
+
+			}
+		]]>
+	</mx:Script>
+	
+</mx:Button>

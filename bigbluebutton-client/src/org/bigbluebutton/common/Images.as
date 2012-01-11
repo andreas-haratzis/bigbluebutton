@@ -160,6 +160,24 @@ package org.bigbluebutton.common
 		public var arrow_in:Class;
 		
 		[Embed(source="assets/images/shape_handles.png")]
-		public var shape_handles:Class;		
+		public var shape_handles:Class;	
+		
+		[Embed(source="assets/images/logoutButton.png")]
+		public var logoutButton:Class;	
+
+		[Embed(source="assets/images/screenButton.png")]
+		public var screenButton:Class;	
+		
+		[Embed(source="assets/images/webcamButton.png")]
+		public var webcamButton:Class;	
+			
+		[Embed(source="assets/images/userAreaButton.png")]
+		public var userAreaButton:Class;	
+		
+		[Embed(source="assets/images/videoChatButton.png")]
+		public var videoChatButton:Class;
+		
+		[Embed(source="assets/images/liveChatButton.png")]
+		public var liveChatButton:Class;
 	}
 }

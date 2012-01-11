@@ -28,7 +28,7 @@
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		width="100%" height="100%" 
-		creationComplete="initializeShell()" xmlns:common="org.bigbluebutton.common.*">
+		creationComplete="initializeShell()" xmlns:common="org.bigbluebutton.common.*"	>
 		
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="setLogVisibility" />
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
@@ -289,26 +289,30 @@
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{layoutOptions.showToolbar}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
+	<views:MainToolbar id="toolbar" dock="true" width="100%" height="94" visible="{layoutOptions.showToolbar}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
-		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
+		<views:BrandingLogo x="{this.width - 586}" y="{this.height - 720}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="20" paddingTop="0">		
-	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
-	 	<mx:Spacer width="20"/>
-		<mx:Spacer width="100%"/> 
-		<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1" visible="{layoutOptions.showVideoLayout}">
-           <mx:dataProvider>
-              <mx:Array>
-			      <mx:String>Small videos</mx:String>
-				  <mx:String>Presenter + presentation</mx:String>
-				  <mx:String>Meeting</mx:String>
-              </mx:Array>
-           </mx:dataProvider>
-      	</mx:ComboBox>
-		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
-		<mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
-	</mx:ControlBar>
+	<mx:Canvas backgroundColor="#0071BD" backgroundAlpha="1" width="100%" height="42">
+		<mx:ControlBar paddingTop="10" width="100%">		
+			<mx:Spacer width="35"/>
+			<mx:Label text="Copyright 2011 | All rights reserved." id="copyrightLabel2" color="#ffffff" />
+		 	<mx:Spacer width="20"/>
+			<mx:Spacer width="100%"/> 
+			<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1" visible="{layoutOptions.showVideoLayout}">
+	           <mx:dataProvider>
+	              <mx:Array>
+				      <mx:String>Small videos</mx:String>
+					  <mx:String>Presenter + presentation</mx:String>
+					  <mx:String>Meeting</mx:String>
+	              </mx:Array>
+	           </mx:dataProvider>
+	      	</mx:ComboBox>
+			<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
+			<mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
+		</mx:ControlBar>	
+	</mx:Canvas>
+	
 </mx:VBox>

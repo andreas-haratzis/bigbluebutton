@@ -34,11 +34,13 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.model.LayoutOptions;
 			import com.asfusion.mate.events.Dispatcher;
-			import mx.core.UIComponent;			
+			
+			import mx.core.UIComponent;
+			
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -46,6 +48,7 @@
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -53,6 +56,8 @@
 			
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
 			public static const ALIGN_LEFT:String = "ALIGN_LEFT";
+			
+			private var images:Images = new Images();
 			
 			[Bindable]
 			public var toolbarOptions:LayoutOptions = new LayoutOptions();
@@ -69,6 +74,7 @@
 				} else {
 					helpBtn.visible = false;
 				}
+				
 			}
 			
 			public function addButton(name:String):Button{
@@ -152,11 +158,13 @@
 			
 		]]>
 	</mx:Script>	
+	<mx:Spacer width="20"/>
 	<mx:HBox id="addedBtns">
-	</mx:HBox>		
+	</mx:HBox>
 	<mx:Spacer width="100%"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="false" click="onHelpButtonClicked()"/>
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
+	<mx:Button icon="{images.logoutButton}" id="btnLogout" cornerRadius="0" maxWidth="45" maxHeight="45"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" click="doLogout()"/>
+	<mx:Spacer width="100"/>
 </mx:ApplicationControlBar>
